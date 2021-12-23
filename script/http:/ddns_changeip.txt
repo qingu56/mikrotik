@@ -1,0 +1,21 @@
+:global ddnsuser "xxx"
+:global ddnspass "xxx"
+:global ddnshost "xxx.changeip.com"
+:global ddnsinterface "pppoe-out1"
+:global ddnsip
+:global ddnsipfn
+:global ddnslastip [:tostr [:resolve $ddnshost] ]
+:if ([ :typeof $ddnslastip ] = nil ) do={ :global ddnslastip "0" }
+:global ddnssystem ("mt-" . [/system package get system version] )
+:global int
+:global ddnsipfn [ /ip address get [/ip address find interface=$ddnsinterface ] address ]
+:global ddnsip [:pick $ddnsipfn 0 [:find $ddnsipfn "/" ] ]
+:if ([ :typeof $ddnsip ] = nil ) do={
+:log info ("DDNS: No ip address present on " . $ddnsinterface . ", please check.")
+} else={
+:if ($ddnsip != $ddnslastip) do={
+:log info "DDNS: Sending UPDATE!"
+:log info [ :put [/tool dns-update name=$ddnshost address=$ddnsip key-name=$ddnsuser key=$ddnspass ] ]
+:global ddnslastip $ddnsip
+}
+}
