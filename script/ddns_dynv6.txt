@@ -1,0 +1,15 @@
+:global hostname "xxx.dynv6.net"
+:global ips [:resolve $hostname]
+:global token "xxx"
+:global iname "pppoe-out1"
+
+
+:global ddnsip [/ip address get [find interface=$iname] address] 
+:set ddnsip [:pick $ddnsip 0 [:find $ddnsip "/"]]  
+:if ($ddnsip!=$ips) do={
+	:local results [/tool fetch http-method=post url="https://dynv6.com/api/update\?hostname=$hostname&token=$token&ipv4=$ddnsip"]  
+	:if ($results->"status" = "finished") do={  
+	:local result ($results->"data")  
+	:log warning ("dynv6:IPV4 ".$result)  
+}
+}
