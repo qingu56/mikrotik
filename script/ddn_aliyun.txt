@@ -1,0 +1,20 @@
+:global ddnsint1 "pppoe-out1"
+:global ddns1 "xxx.aliyun.com"
+:global id1 "xxxI5tHwEALMDAF2H8yLtsYZ"
+:global secret1 "xxxxUcUpi1FJKY4s533cLipXY70Q"  
+
+:global ddnsline1 "default"  
+:global ttl1 600  
+:global ddnsd1 223.5.5.5  
+:global ddnsres1  
+:do {:set ddnsres1 [resolve $ddns1 server=$ddnsd1]} on-error={:set ddnsres1 ""}  
+:global ddnsip1 [/ip address get [find interface=$ddnsint1] address]  
+:set ddnsip1 [:pick $ddnsip1 0 [:find $ddnsip1 "/"]]  
+:if ($ddnsres1 != $ddnsip1) do={  
+:local results [/tool fetch url=("https://mail.ros6.com:6180/id=$id1&secret=$secret1&domain=$ddns1&ip=$ddnsip1&line=$ddnsline1&ttl=$ttl1") check-certificate=no as-value output=user]  
+:if ($results->"status" = "finished") do={  
+:local result ($results->"data")  
+:log warning ("ALIDDNS:IPV4 ".$result)  
+} 
+}
+}
